@@ -35,23 +35,6 @@ _Note: See [How to Prevent Permissions Errors](https://docs.npmjs.com/getting-st
 To contribute to the main application, please click to the following link: [CONTRIBUTING.md](https://github.com/ionic-team/ionic-conference-app/blob/master/.github/CONTRIBUTING.md) :tada::+1:
 
 
-## App Preview
-
-All app preview screenshots were taken by running `ionic serve --lab` on a retina display.
-
-- [Schedule Page](https://github.com/ionic-team/ionic-conference-app/blob/master/src/app/pages/schedule/schedule.html)
-
-  <img src="resources/screenshots/SchedulePage.png" alt="Schedule">
-
-
-- [About Page](https://github.com/ionic-team/ionic-conference-app/blob/master/src/app/pages/about/about.html)
-
-  <img src="resources/screenshots/AboutPage.png" alt="Schedule">
-
-
-- To see more images of the app, check out the [screenshots directory](https://github.com/ionic-team/ionic-conference-app/tree/master/resources/screenshots)!
-
-
 ## Deploying
 
 ### Progressive Web App
