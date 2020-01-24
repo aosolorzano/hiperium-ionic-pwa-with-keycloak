@@ -3,13 +3,13 @@ import { Router } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
 
 import { MenuController, Platform, ToastController } from '@ionic/angular';
-
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-
 import { Storage } from '@ionic/storage';
-
 import { UserData } from './providers/user-data';
+
+import { KeycloakService } from 'keycloak-angular';
+import { KeycloakProfile } from 'keycloak-js';
 
 @Component({
   selector: 'app-root',
@@ -40,8 +40,9 @@ export class AppComponent implements OnInit {
       icon: 'information-circle'
     }
   ];
-  loggedIn = false;
+
   dark = false;
+  public userDetails: KeycloakProfile;
 
   constructor(
     private menu: MenuController,
@@ -53,29 +54,35 @@ export class AppComponent implements OnInit {
     private userData: UserData,
     private swUpdate: SwUpdate,
     private toastCtrl: ToastController,
+    private keycloakService: KeycloakService
   ) {
     this.initializeApp();
   }
 
   async ngOnInit() {
-    this.checkLoginStatus();
-    this.listenForLoginEvents();
-
-    this.swUpdate.available.subscribe(async res => {
-      const toast = await this.toastCtrl.create({
-        message: 'Update available!',
-        showCloseButton: true,
-        position: 'bottom',
-        closeButtonText: `Reload`
+    if (await this.keycloakService.isLoggedIn()) {
+      this.keycloakService.getToken().then(response => {
+        localStorage.setItem('token', response);
       });
 
-      await toast.present();
+      this.keycloakService.loadUserProfile().then(response => {
+        this.userDetails = response;
+      });
 
-      toast
-        .onDidDismiss()
-        .then(() => this.swUpdate.activateUpdate())
-        .then(() => window.location.reload());
-    });
+      this.swUpdate.available.subscribe(async res => {
+        const toast = await this.toastCtrl.create({
+          message: 'Update available!',
+          showCloseButton: true,
+          position: 'bottom',
+          closeButtonText: `Reload`
+        });
+        await toast.present();
+        toast
+          .onDidDismiss()
+          .then(() => this.swUpdate.activateUpdate())
+          .then(() => window.location.reload());
+      });
+    }
   }
 
   initializeApp() {
@@ -85,36 +92,10 @@ export class AppComponent implements OnInit {
     });
   }
 
-  checkLoginStatus() {
-    return this.userData.isLoggedIn().then(loggedIn => {
-      return this.updateLoggedInStatus(loggedIn);
-    });
-  }
-
-  updateLoggedInStatus(loggedIn: boolean) {
-    setTimeout(() => {
-      this.loggedIn = loggedIn;
-    }, 300);
-  }
-
-  listenForLoginEvents() {
-    window.addEventListener('user:login', () => {
-      this.updateLoggedInStatus(true);
-    });
-
-    window.addEventListener('user:signup', () => {
-      this.updateLoggedInStatus(true);
-    });
-
-    window.addEventListener('user:logout', () => {
-      this.updateLoggedInStatus(false);
-    });
-  }
-
   logout() {
-    this.userData.logout().then(() => {
-      return this.router.navigateByUrl('/app/tabs/schedule');
-    });
+    localStorage.clear();
+    this.keycloakService.logout();
+    this.router.navigateByUrl('/app/tabs/schedule');
   }
 
   openTutorial() {
