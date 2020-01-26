@@ -2,7 +2,7 @@ import { KeycloakConfig } from 'keycloak-angular';
 
 // Keycloak setup info
 const keycloakConfig: KeycloakConfig = {
-  url: 'http://localhost:8080/auth',
+  url: 'http://192.168.1.102:8180/auth',
   realm: 'hiperium',
   clientId: 'hiperium-web-app-client-localhost'
 };
